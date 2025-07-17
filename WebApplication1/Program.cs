@@ -11,6 +11,7 @@ class Program
     static async Task Main()
     {
         int opcoes = 0;
+        Console.WriteLine();
         Console.WriteLine("Ola Seja Bem Vindo ao Sistema de Estoque, Produtos e Pedidos");
         while (opcoes != 3)
         {
@@ -106,8 +107,8 @@ class Program
                     }
                     break;
                 case 3:
-                    Console.WriteLine("Voce escolheu Sair do Sistema\n");
-                    Console.WriteLine("Obrigado por usar o Sistema de Estoque, Produtos e Pedidos!");
+                    Console.WriteLine("Voce escolheu Sair do Sistema de Estoque, Produtos e Pedidos.");
+                    Console.WriteLine("Obrigado por usar o nosso Sistema!");
                     Console.WriteLine("Ate logo!\n");
                     return;
                 default:
