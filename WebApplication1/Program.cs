@@ -23,11 +23,14 @@ class Program
             await connection2.OpenAsync();
             Console.WriteLine("Conectado ao banco de dados com sucesso!");
             await using var cmd = connection2.CreateCommand();
-            cmd.CommandText = "SELECT * FROM tab_bibliotecarias;";
+            cmd.CommandText = "SELECT * FROM tab_unidades_atendimentos;";
             await using var version = await cmd.ExecuteReaderAsync();
+            //await using var nomet = await cmd.ExecuteReaderAsync();
             while (await version.ReadAsync())
             {
-                Console.WriteLine(version.GetString(0));
+                Console.WriteLine(version.GetValue(0));
+                Console.WriteLine(version.GetValue(1));
+                Console.WriteLine(version.GetValue(2));
             }
         }
     }
