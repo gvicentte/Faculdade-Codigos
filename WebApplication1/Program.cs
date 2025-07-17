@@ -1,5 +1,5 @@
 using System;
-using Npgsql;
+using Npgsql; // Npgsql is the .NET data provider for PostgreSQL
 
 class Program
 {
