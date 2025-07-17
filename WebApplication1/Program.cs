@@ -21,10 +21,9 @@ class Program
         await using (var connection2 = new NpgsqlConnection(connectionString))
         {
             await connection2.OpenAsync();
-            // Removed invalid argument from CreateCommand
+            Console.WriteLine("Conectado ao banco de dados com sucesso!");
             await using var cmd = connection2.CreateCommand();
             cmd.CommandText = "SELECT * FROM tab_bibliotecarias;";
-            //cmd.CommandText = "SELECT * FROM tab_bibliotecarias";
             await using var version = await cmd.ExecuteReaderAsync();
             while (await version.ReadAsync())
             {
