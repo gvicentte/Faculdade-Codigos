@@ -1,0 +1,6 @@
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\WebApplication1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\WebApplication1.AssemblyInfoInputs.cache
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\WebApplication1.AssemblyInfo.cs
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\WebApplication1.csproj.CoreCompileInputs.cache
+C:\Users\Gabriel Vicentte\Downloads\Faculdade Codigos\WebApplication1\obj\Debug\net9.0\WebApplication1.MvcApplicationPartsAssemblyInfo.cache
