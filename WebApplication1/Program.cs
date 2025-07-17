@@ -10,6 +10,7 @@ class Program
     const string connectionString = "Host=localhost;Username=postgres;Password=1508;Database=postgres"; //conectou ao banco dessa vez rodando pelo VsCode
     static async Task Main()
     {
+        await using var connection = new NpgsqlConnection(connectionString);
         int opcoes = 0;
         Console.WriteLine();
         Console.WriteLine("Ola Seja Bem Vindo ao Sistema de Estoque, Produtos e Pedidos");
@@ -49,7 +50,7 @@ class Program
                             case 3:
                                 Console.WriteLine("Obter Produto por ID selecionado.\n");
                                 break;
-                                // Aqui você pode adicionar a lógica para obter um produto por ID
+                            // Aqui você pode adicionar a lógica para obter um produto por ID
                             case 4:
                                 Console.WriteLine("Atualizar Produto selecionado.\n");
                                 // Aqui você pode adicionar a lógica para atualizar um produto
