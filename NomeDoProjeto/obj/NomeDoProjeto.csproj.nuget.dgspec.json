@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\WebApplication1\\WebApplication1.csproj": {}
+    "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\NomeDoProjeto\\NomeDoProjeto.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\WebApplication1\\WebApplication1.csproj": {
+    "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\NomeDoProjeto\\NomeDoProjeto.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\WebApplication1\\WebApplication1.csproj",
-        "projectName": "WebApplication1",
-        "projectPath": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\WebApplication1\\WebApplication1.csproj",
+        "projectUniqueName": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\NomeDoProjeto\\NomeDoProjeto.csproj",
+        "projectName": "NomeDoProjeto",
+        "projectPath": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\NomeDoProjeto\\NomeDoProjeto.csproj",
         "packagesPath": "C:\\Users\\Gabriel Vicentte\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\WebApplication1\\obj\\",
+        "outputPath": "C:\\Users\\Gabriel Vicentte\\Downloads\\Faculdade Codigos\\NomeDoProjeto\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Gabriel Vicentte\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -61,9 +61,6 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
