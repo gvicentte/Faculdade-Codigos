@@ -3,6 +3,8 @@ using System.Data.Common;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Npgsql; // Npgsql is the .NET data provider for PostgreSQL
 
 class Program
