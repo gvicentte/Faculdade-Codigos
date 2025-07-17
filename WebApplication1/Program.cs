@@ -9,7 +9,7 @@ class Program
         Console.Write("Ola Informe seu nome: ");
         nome = Console.ReadLine();
         Console.WriteLine("Ola seu nome e {0}", nome);
-        string connectionString = "Host=localhost;Username=postgres;Password=1508;Database=database";
+        string connectionString = "Host=localhost;Username=postgres;Password=1508;Database=postgres"; //conectou ao banco dessa vez rodando pelo VsCode
         using(var connection=new NpgsqlConnection(connectionString))
         {
             connection.Open();
