@@ -23,14 +23,16 @@ class Program
             await connection2.OpenAsync();
             Console.WriteLine("Conectado ao banco de dados com sucesso!");
             await using var cmd = connection2.CreateCommand();
+            cmd.CommandText = "INSERT INTO tab_unidades_atendimentos (nome, endereco, telefone) VALUES (@nome, @endereco, @telefone);";
+            cmd.Parameters.AddWithValue("nome", nome);
+            cmd.Parameters.AddWithValue("endereco", "Rua Tend Tudo, 123");
+            cmd.Parameters.AddWithValue("telefone", "123456789");
+            await cmd.ExecuteNonQueryAsync();
             cmd.CommandText = "SELECT * FROM tab_unidades_atendimentos;";
             await using var version = await cmd.ExecuteReaderAsync();
-            //await using var nomet = await cmd.ExecuteReaderAsync();
             while (await version.ReadAsync())
             {
-                Console.WriteLine(version.GetValue(0));
-                Console.WriteLine(version.GetValue(1));
-                Console.WriteLine(version.GetValue(2));
+                Console.WriteLine($"{version.GetValue(0)}, {version.GetValue(1)}, {version.GetValue(2)}, {version.GetValue(3)}");
             }
         }
     }
