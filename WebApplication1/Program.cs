@@ -286,7 +286,6 @@ class Program
                                         }
                                         string nomeProduto = reader.GetString(0);
                                         decimal precoUnitario = reader.GetDecimal(1);
-                                        //await connection.CloseAsync();
                                         decimal valorTotalItem = precoUnitario * quantidade;
                                         valorTotalPedido += valorTotalItem;
                                         itens.Add(new ItemPedido
@@ -302,11 +301,8 @@ class Program
                                     await using var cmdPedido = new NpgsqlCommand("INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
                                     cmdPedido.Parameters.AddWithValue("cliente", cliente);
                                     cmdPedido.Parameters.AddWithValue("total", valorTotalPedido);
-                                    //await connection.OpenAsync();
                                     int pedidoId = (int)await cmdPedido.ExecuteScalarAsync();
-                                    //await connection.CloseAsync();
                                     // Inserir itens
-                                    //await connection.OpenAsync();
                                     foreach (var item in itens)
                                     {
                                         await using var cmdItem = new NpgsqlCommand("INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection);
@@ -316,9 +312,7 @@ class Program
                                         cmdItem.Parameters.AddWithValue("preco", item.PrecoUnitario);
                                         cmdItem.Parameters.AddWithValue("quantidade", item.Quantidade);
                                         cmdItem.Parameters.AddWithValue("valorTotal", item.ValorTotalItem);
-                                        //await connection.OpenAsync();
                                         await cmdItem.ExecuteNonQueryAsync();
-                                        //await connection.CloseAsync();
                                     }
                                     Console.WriteLine("Itens do Pedido:");
                                     foreach (var item in itens)
