@@ -273,7 +273,7 @@ class Program
                                         }
                                         string nomeProduto = reader.GetString(0);
                                         decimal precoUnitario = reader.GetDecimal(1);
-                                        await connection.CloseAsync();
+                                        //await connection.CloseAsync();
                                         decimal valorTotalItem = precoUnitario * quantidade;
                                         valorTotalPedido += valorTotalItem;
                                         itens.Add(new ItemPedido
@@ -289,10 +289,11 @@ class Program
                                     await using var cmdPedido = new NpgsqlCommand("INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
                                     cmdPedido.Parameters.AddWithValue("cliente", cliente);
                                     cmdPedido.Parameters.AddWithValue("total", valorTotalPedido);
-                                    await connection.OpenAsync();
+                                    //await connection.OpenAsync();
                                     int pedidoId = (int)await cmdPedido.ExecuteScalarAsync();
-                                    await connection.CloseAsync();
+                                    //await connection.CloseAsync();
                                     // Inserir itens
+                                    //await connection.OpenAsync();
                                     foreach (var item in itens)
                                     {
                                         await using var cmdItem = new NpgsqlCommand("INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection);
@@ -302,9 +303,9 @@ class Program
                                         cmdItem.Parameters.AddWithValue("preco", item.PrecoUnitario);
                                         cmdItem.Parameters.AddWithValue("quantidade", item.Quantidade);
                                         cmdItem.Parameters.AddWithValue("valorTotal", item.ValorTotalItem);
-                                        await connection.OpenAsync();
+                                        //await connection.OpenAsync();
                                         await cmdItem.ExecuteNonQueryAsync();
-                                        await connection.CloseAsync();
+                                        //await connection.CloseAsync();
                                     }
                                     Console.WriteLine("Itens do Pedido:");
                                     foreach (var item in itens)
@@ -324,28 +325,41 @@ class Program
                                 break;
                             case 2:
                                 Console.WriteLine("Listar Pedidos selecionado.\n");
+                                Console.Write("Informe o ID do pedido: ");
+                                int idPedido = Convert.ToInt32(Console.ReadLine());
+
                                 await connection.OpenAsync();
                                 if (connection.State == System.Data.ConnectionState.Open)
                                 {
-                                    Console.Write("Informe o ID do pedido a ser listado: ");
-                                    int idPedido = Convert.ToInt32(Console.ReadLine());
-                                    using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                    var sql = @"SELECT p.id AS pedido_id, p.cliente, p.data_pedido, p.valor_total, i.nome_produto, i.quantidade, i.preco_unitario, i.valor_total_item FROM pedidos p JOIN itens_pedido i ON p.id = i.pedido_id WHERE p.id = @id";
+                                    using var cmd = new NpgsqlCommand(sql, connection);
+                                    cmd.Parameters.AddWithValue("id", idPedido);
+                                    await using var reader = await cmd.ExecuteReaderAsync();
+                                    if (!reader.HasRows)
                                     {
-                                        cmd.Parameters.AddWithValue("id", idPedido);
-                                        await using var reader = await cmd.ExecuteReaderAsync();
-                                        if (reader.HasRows)
+                                        Console.WriteLine("Pedido não encontrado.\n");
+                                    }
+                                    else
+                                    {
+                                        bool cabecalhoMostrado = false;
+                                        while (await reader.ReadAsync())
                                         {
-                                            Console.WriteLine("Lista de Pedidos:");
-                                            while (await reader.ReadAsync())
+                                            if (!cabecalhoMostrado)
                                             {
-                                                Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
+                                                Console.WriteLine($"\nPedido ID: {reader.GetInt32(0)}");
+                                                Console.WriteLine($"Cliente: {reader.GetString(1)}");
+                                                Console.WriteLine($"Data: {reader.GetDateTime(2):dd/MM/yyyy}");
+                                                Console.WriteLine($"Valor Total: R$ {reader.GetDecimal(3):N2}");
+                                                Console.WriteLine("\nItens do Pedido:");
+                                                cabecalhoMostrado = true;
                                             }
-                                            Console.WriteLine("\n");
+                                            string nomeProduto = reader.GetString(4);
+                                            int quantidade = reader.GetInt32(5);
+                                            decimal precoUnitario = reader.GetDecimal(6);
+                                            decimal valorItem = reader.GetDecimal(7);
+                                            Console.WriteLine($"- {nomeProduto} | Qtd: {quantidade} | Preço: R${precoUnitario:N2} | Total: R${valorItem:N2}");
                                         }
-                                        else
-                                        {
-                                            Console.WriteLine("Nenhum pedido encontrado.\n");
-                                        }
+                                        Console.WriteLine();
                                     }
                                     connection.Close();
                                 }
@@ -353,7 +367,6 @@ class Program
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
                                     connection.Close();
-                                    return;
                                 }
                                 break;
                             case 3:
