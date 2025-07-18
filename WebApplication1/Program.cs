@@ -294,7 +294,6 @@ class Program
                                             Quantidade = quantidade,
                                             ValorTotalItem = valorTotalItem
                                         });
-                                        await connection.OpenAsync();
                                     }
                                     // Inserir pedido
                                     await using var cmdPedido = new NpgsqlCommand("INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
