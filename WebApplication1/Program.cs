@@ -65,7 +65,6 @@ class Program
                                             Console.WriteLine("Dados inválidos. Por favor, tente novamente.\n");
                                             return;
                                         }
-                                        //await cmd.ExecuteNonQueryAsync();
                                         int linhasAfetadas = await cmd.ExecuteNonQueryAsync();
                                         if (linhasAfetadas > 0)
                                         {
@@ -84,7 +83,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para cadastrar um produto
                                 break;
                             case 2:
                                 Console.WriteLine("Listar Produtos selecionado.\n");
@@ -116,7 +114,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para listar produtos
                                 break;
                             case 3:
                                 Console.WriteLine("Obter Produto por ID selecionado.\n");
@@ -147,7 +144,6 @@ class Program
                                     return;
                                 }
                                 break;
-                            // Aqui você pode adicionar a lógica para obter um produto por ID
                             case 4:
                                 Console.WriteLine("Atualizar Produto selecionado.\n");
                                 Console.Write("Informe o ID do produto a ser atualizado: ");
@@ -163,7 +159,6 @@ class Program
                                         {
                                             Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
                                             reader.Close(); // Fecha o leitor antes de atualizar
-
                                             Console.Write("Informe o novo nome do produto: ");
                                             string novoNome = Console.ReadLine() ?? string.Empty;
                                             Console.Write("Informe a nova descrição do produto: ");
@@ -172,7 +167,6 @@ class Program
                                             decimal novoPreco = Convert.ToDecimal(Console.ReadLine());
                                             Console.Write("Informe a nova quantidade em estoque: ");
                                             int novaQuantidadeEstoque = Convert.ToInt32(Console.ReadLine());
-
                                             using (var updateCmd = new NpgsqlCommand("UPDATE produtos SET nome = @nome, descricao = @descricao, preco = @preco, quantidade_estoque = @quantidadeEstoque WHERE id = @id", connection))
                                             {
                                                 updateCmd.Parameters.AddWithValue("nome", novoNome);
@@ -197,7 +191,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para atualizar um produto
                                 break;
                             case 5:
                                 Console.WriteLine("Excluir Produto selecionado.\n");
@@ -227,7 +220,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para excluir um produto
                                 break;
                             case 6:
                                 Console.WriteLine("Voltando ao Menu Principal...\n");
@@ -259,13 +251,10 @@ class Program
                                 {
                                     Console.Write("Nome do cliente: ");
                                     string cliente = Console.ReadLine();
-
                                     Console.Write("Quantos itens o pedido terá? ");
                                     int totalItens = int.Parse(Console.ReadLine());
-
                                     List<ItemPedido> itens = new();
                                     decimal valorTotalPedido = 0;
-
                                     for (int i = 0; i < totalItens; i++)
                                     {
                                         Console.WriteLine($"\nItem {i + 1}:");
@@ -306,18 +295,14 @@ class Program
                                     // Inserir itens
                                     foreach (var item in itens)
                                     {
-                                        await using var cmdItem = new NpgsqlCommand(
-                                            "INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) " +
-                                            "VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection);
-
+                                        await using var cmdItem = new NpgsqlCommand("INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection);
                                         cmdItem.Parameters.AddWithValue("pedidoId", pedidoId);
                                         cmdItem.Parameters.AddWithValue("produtoId", item.ProdutoId);
                                         cmdItem.Parameters.AddWithValue("nome", item.NomeProduto);
                                         cmdItem.Parameters.AddWithValue("preco", item.PrecoUnitario);
                                         cmdItem.Parameters.AddWithValue("quantidade", item.Quantidade);
                                         cmdItem.Parameters.AddWithValue("valorTotal", item.ValorTotalItem);
-
-                                        //await connection.OpenAsync();
+                                        await connection.OpenAsync();
                                         await cmdItem.ExecuteNonQueryAsync();
                                         await connection.CloseAsync();
                                     }
@@ -370,7 +355,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para listar pedidos
                                 break;
                             case 3:
                                 Console.WriteLine("Atualizar Pedido selecionado.\n");
@@ -387,12 +371,10 @@ class Program
                                         {
                                             Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
                                             reader.Close(); // Fecha o leitor antes de atualizar
-
                                             Console.Write("Informe o novo nome do cliente: ");
                                             string novoCliente = Console.ReadLine() ?? string.Empty;
                                             Console.Write("Informe a nova data do pedido (dd/MM/yyyy): ");
                                             DateTime novaDataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
-
                                             using (var updateCmd = new NpgsqlCommand("UPDATE pedidos SET cliente = @cliente, data_pedido = @dataPedido WHERE id = @id", connection))
                                             {
                                                 updateCmd.Parameters.AddWithValue("cliente", novoCliente);
@@ -415,7 +397,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para atualizar um pedido
                                 break;
                             case 4:
                                 Console.WriteLine("Excluir Pedido selecionado.\n");
@@ -445,7 +426,6 @@ class Program
                                     connection.Close();
                                     return;
                                 }
-                                // Aqui você pode adicionar a lógica para excluir um pedido
                                 break;
                             case 5:
                                 Console.WriteLine("Voltando ao Menu Principal...\n");
