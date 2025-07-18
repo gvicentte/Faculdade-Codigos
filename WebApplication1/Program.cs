@@ -97,7 +97,20 @@ class Program
                                             Console.WriteLine("Lista de Produtos:");
                                             while (await reader.ReadAsync())
                                             {
-                                                Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
+                                                //Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
+                                                //O de cima e para exibir no console normalmente, sem o formato JSON
+                                                var teste = new Produto
+                                                {
+                                                    Id = reader.GetInt32(0),
+                                                    Nome = reader.GetString(1),
+                                                    Descricao = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                                    Preco = reader.GetDecimal(3),
+                                                    QuantidadeEstoque = reader.GetInt32(4)
+                                                };
+                                                string json = JsonSerializer.Serialize(teste, new JsonSerializerOptions { WriteIndented = true });
+                                                Console.WriteLine(json);
+                                                Console.WriteLine(); // Adiciona uma linha em branco para melhor legibilidade
+                                                // Exibe os detalhes do item do pedido
                                             }
                                             Console.WriteLine("\n");
                                         }
@@ -346,18 +359,37 @@ class Program
                                         {
                                             if (!cabecalhoMostrado)
                                             {
-                                                Console.WriteLine($"\nPedido ID: {reader.GetInt32(0)}");
-                                                Console.WriteLine($"Cliente: {reader.GetString(1)}");
-                                                Console.WriteLine($"Data: {reader.GetDateTime(2):dd/MM/yyyy}");
-                                                Console.WriteLine($"Valor Total: R$ {reader.GetDecimal(3):N2}");
-                                                Console.WriteLine("\nItens do Pedido:");
+                                                var testePedido = new Pedido
+                                                {
+                                                    Id = reader.GetInt32(0),
+                                                    Cliente = reader.GetString(1),
+                                                    DataPedido = reader.GetDateTime(2),
+                                                    ValorTotalPedido = reader.GetDecimal(3)
+                                                };
+                                                string json = JsonSerializer.Serialize(testePedido, new JsonSerializerOptions { WriteIndented = true });
+                                                Console.WriteLine(json);
+                                                //Console.WriteLine($"\nPedido ID: {reader.GetInt32(0)}");
+                                                //Console.WriteLine($"Cliente: {reader.GetString(1)}");
+                                                //Console.WriteLine($"Data: {reader.GetDateTime(2):dd/MM/yyyy}");
+                                                //Console.WriteLine($"Valor Total: R$ {reader.GetDecimal(3):N2}");
+                                                //Console.WriteLine("\nItens do Pedido:");
                                                 cabecalhoMostrado = true;
                                             }
-                                            string nomeProduto = reader.GetString(4);
-                                            int quantidade = reader.GetInt32(5);
-                                            decimal precoUnitario = reader.GetDecimal(6);
-                                            decimal valorItem = reader.GetDecimal(7);
-                                            Console.WriteLine($"- {nomeProduto} | Qtd: {quantidade} | Preço: R${precoUnitario:N2} | Total: R${valorItem:N2}");
+                                            var teste = new ItemPedido
+                                            {
+                                                ProdutoId = reader.GetInt32(0),
+                                                NomeProduto = reader.GetString(4),
+                                                Quantidade = reader.GetInt32(5),
+                                                PrecoUnitario = reader.GetDecimal(6),
+                                                ValorTotalItem = reader.GetDecimal(7)
+                                            };
+                                            string jsonItem = JsonSerializer.Serialize(teste, new JsonSerializerOptions { WriteIndented = true });
+                                            Console.WriteLine(jsonItem);
+                                            //string nomeProduto = reader.GetString(4);
+                                            //int quantidade = reader.GetInt32(5);
+                                            //decimal precoUnitario = reader.GetDecimal(6);
+                                            //decimal valorItem = reader.GetDecimal(7);
+                                            //Console.WriteLine($"- {nomeProduto} | Qtd: {quantidade} | Preço: R${precoUnitario:N2} | Total: R${valorItem:N2}");
                                         }
                                         Console.WriteLine();
                                     }
