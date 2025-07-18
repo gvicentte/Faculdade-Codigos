@@ -65,8 +65,9 @@ class Program
                                             Console.WriteLine("Dados inválidos. Por favor, tente novamente.\n");
                                             return;
                                         }
-                                        await cmd.ExecuteNonQueryAsync();
-                                        if (cmd.ExecuteNonQueryAsync().IsCompletedSuccessfully)
+                                        //await cmd.ExecuteNonQueryAsync();
+                                        int linhasAfetadas = await cmd.ExecuteNonQueryAsync();
+                                        if (linhasAfetadas > 0)
                                         {
                                             Console.WriteLine("Produto cadastrado com sucesso!\n");
                                         }
