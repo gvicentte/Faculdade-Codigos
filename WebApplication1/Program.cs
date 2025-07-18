@@ -44,7 +44,7 @@ class Program
                             case 1:
                                 Console.WriteLine("Cadastrar Produto selecionado.\n");
                                 await connection.OpenAsync();
-                                if(connection.State == System.Data.ConnectionState.Open)
+                                if (connection.State == System.Data.ConnectionState.Open)
                                 {
                                     //Console.WriteLine("Conectado ao banco de dados com sucesso!");
                                     Console.Write("Informe o nome do produto: ");
@@ -61,7 +61,7 @@ class Program
                                         cmd.Parameters.AddWithValue("descricao", descricao);
                                         cmd.Parameters.AddWithValue("preco", preco);
                                         cmd.Parameters.AddWithValue("quantidadeEstoque", quantidadeEstoque);
-                                        if(string.IsNullOrEmpty(nome) || preco <= 0 || quantidadeEstoque < 0)
+                                        if (string.IsNullOrEmpty(nome) || preco <= 0 || quantidadeEstoque < 0)
                                         {
                                             Console.WriteLine("Dados inválidos. Por favor, tente novamente.\n");
                                             return;
@@ -76,10 +76,12 @@ class Program
                                             Console.WriteLine("Erro ao cadastrar o produto. Tente novamente.\n");
                                         }
                                     }
+                                    connection.Close();
                                 }
                                 else
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.");
+                                    connection.Close();
                                     return;
                                 }
                                 // Aqui você pode adicionar a lógica para cadastrar um produto
@@ -106,10 +108,12 @@ class Program
                                             Console.WriteLine("Nenhum produto encontrado.\n");
                                         }
                                     }
+                                    connection.Close();
                                 }
                                 else
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
                                     return;
                                 }
                                 // Aqui você pode adicionar a lógica para listar produtos
@@ -134,10 +138,12 @@ class Program
                                             Console.WriteLine("Produto não encontrado.\n");
                                         }
                                     }
+                                    connection.Close();
                                 }
                                 else
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
                                     return;
                                 }
                                 break;
@@ -157,7 +163,7 @@ class Program
                                         {
                                             Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
                                             reader.Close(); // Fecha o leitor antes de atualizar
-                                            
+
                                             Console.Write("Informe o novo nome do produto: ");
                                             string novoNome = Console.ReadLine() ?? string.Empty;
                                             Console.Write("Informe a nova descrição do produto: ");
@@ -183,10 +189,12 @@ class Program
                                             Console.WriteLine("Produto não encontrado.\n");
                                         }
                                     }
+                                    connection.Close();
                                 }
                                 else
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
                                     return;
                                 }
                                 // Aqui você pode adicionar a lógica para atualizar um produto
@@ -211,10 +219,12 @@ class Program
                                             Console.WriteLine("Produto não encontrado ou já excluído.\n");
                                         }
                                     }
+                                    connection.Close();
                                 }
                                 else
                                 {
                                     Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
                                     return;
                                 }
                                 // Aqui você pode adicionar a lógica para excluir um produto
@@ -244,18 +254,167 @@ class Program
                         {
                             case 1:
                                 Console.WriteLine("Cadastrar Pedido selecionado.\n");
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    Console.Write("Informe o nome do cliente: ");
+                                    string cliente = Console.ReadLine() ?? string.Empty;
+                                    Console.Write("Informe a data do pedido (dd/MM/yyyy): ");
+                                    DateTime dataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
+                                    Pedido pedido = new Pedido
+                                    {
+                                        Cliente = cliente,
+                                        DataPedido = dataPedido
+                                    };
+
+                                    Console.Write("Quantos itens deseja adicionar ao pedido? ");
+                                    int numeroItens = Convert.ToInt32(Console.ReadLine());
+
+                                    for (int i = 0; i < numeroItens; i++)
+                                    {
+                                        Console.Write($"Informe o ID do produto {i + 1}: ");
+                                        int produtoId = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write($"Informe a quantidade do produto {i + 1}: ");
+                                        int quantidade = Convert.ToInt32(Console.ReadLine());
+
+                                        // Aqui você pode buscar o produto pelo ID e obter o nome e preço
+                                        // Simulando com dados fictícios
+                                        string nomeProduto = "Produto Exemplo"; // Substitua pela lógica de busca real
+                                        decimal precoUnitario = 10.00m; // Substitua pela lógica de busca real
+
+                                        ItemPedido itemPedido = new ItemPedido
+                                        {
+                                            ProdutoId = produtoId,
+                                            NomeProduto = nomeProduto,
+                                            Quantidade = quantidade,
+                                            PrecoUnitario = precoUnitario,
+                                            ValorTotalItem = precoUnitario * quantidade
+                                        };
+
+                                        pedido.Itens.Add(itemPedido);
+                                        pedido.ValorTotalPedido += itemPedido.ValorTotalItem;
+                                    }
+
+                                    // Aqui você pode salvar o pedido no banco de dados
+                                    Console.WriteLine($"Pedido cadastrado com sucesso! Valor Total: {pedido.ValorTotalPedido:C}\n");
+                                    connection.Close();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para cadastrar um pedido
                                 break;
                             case 2:
                                 Console.WriteLine("Listar Pedidos selecionado.\n");
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    Console.Write("Informe o ID do pedido a ser listado: ");
+                                    int idPedido = Convert.ToInt32(Console.ReadLine());
+                                    using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idPedido);
+                                        await using var reader = await cmd.ExecuteReaderAsync();
+                                        if (reader.HasRows)
+                                        {
+                                            Console.WriteLine("Lista de Pedidos:");
+                                            while (await reader.ReadAsync())
+                                            {
+                                                Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
+                                            }
+                                            Console.WriteLine("\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Nenhum pedido encontrado.\n");
+                                        }
+                                    }
+                                    connection.Close();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para listar pedidos
                                 break;
                             case 3:
                                 Console.WriteLine("Atualizar Pedido selecionado.\n");
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    Console.Write("Informe o ID do pedido a ser atualizado: ");
+                                    int idAtualizarPedido = Convert.ToInt32(Console.ReadLine());
+                                    using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idAtualizarPedido);
+                                        await using var reader = await cmd.ExecuteReaderAsync();
+                                        if (await reader.ReadAsync())
+                                        {
+                                            Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
+                                            reader.Close(); // Fecha o leitor antes de atualizar
+
+                                            Console.Write("Informe o novo nome do cliente: ");
+                                            string novoCliente = Console.ReadLine() ?? string.Empty;
+                                            Console.Write("Informe a nova data do pedido (dd/MM/yyyy): ");
+                                            DateTime novaDataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
+
+                                            using (var updateCmd = new NpgsqlCommand("UPDATE pedidos SET cliente = @cliente, data_pedido = @dataPedido WHERE id = @id", connection))
+                                            {
+                                                updateCmd.Parameters.AddWithValue("cliente", novoCliente);
+                                                updateCmd.Parameters.AddWithValue("dataPedido", novaDataPedido);
+                                                updateCmd.Parameters.AddWithValue("id", idAtualizarPedido);
+                                                await updateCmd.ExecuteNonQueryAsync();
+                                                Console.WriteLine("Pedido atualizado com sucesso!\n");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Pedido não encontrado.\n");
+                                        }
+                                    }
+                                    connection.Close();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para atualizar um pedido
                                 break;
                             case 4:
                                 Console.WriteLine("Excluir Pedido selecionado.\n");
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    Console.Write("Informe o ID do pedido a ser excluído: ");
+                                    int idExcluirPedido = Convert.ToInt32(Console.ReadLine());
+                                    using (var cmd = new NpgsqlCommand("DELETE FROM pedidos WHERE id = @id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idExcluirPedido);
+                                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                                        if (rowsAffected > 0)
+                                        {
+                                            Console.WriteLine("Pedido excluído com sucesso!\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Pedido não encontrado ou já excluído.\n");
+                                        }
+                                    }
+                                    connection.Close();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    connection.Close();
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para excluir um pedido
                                 break;
                             case 5:
