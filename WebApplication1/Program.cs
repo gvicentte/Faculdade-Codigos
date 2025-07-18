@@ -7,6 +7,19 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Npgsql; // Npgsql is the .NET data provider for PostgreSQL
 
+//Complexidade de tempo e espaço para as operações principais:
+//Considerando que N é o número de produtos e M o número de itens do pedido:
+// - Listar Produtos O(N)
+// - Listar Itens do Pedido O(M)
+// - Cadastrar Produto O(1)
+// - Cadastrar Pedido + itens O(M)
+// - Atualizar ou Excluir Produto O(1)
+// - Atualizar ou Excluir Pedido O(1)
+
+//Complexidade de espaço:
+// - O(N) para armazenar produtos em memória
+// - O(M) para armazenar itens do pedido em memória
+
 class Program
 {
     const string connectionString = "Host=localhost;Username=postgres;Password=1508;Database=postgres"; //conectou ao banco dessa vez rodando pelo VsCode
