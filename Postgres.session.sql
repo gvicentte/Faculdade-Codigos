@@ -1,7 +1,7 @@
 CREATE TABLE produtos (
     id SERIAL PRIMARY KEY,
     nome TEXT NOT NULL,
-    descricao TEXT,
+    descricao TEXT NULL,
     preco NUMERIC(10,2) NOT NULL,
     quantidade_estoque INT NOT NULL
 );
