@@ -43,22 +43,180 @@ class Program
                         {
                             case 1:
                                 Console.WriteLine("Cadastrar Produto selecionado.\n");
+                                await connection.OpenAsync();
+                                if(connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    //Console.WriteLine("Conectado ao banco de dados com sucesso!");
+                                    Console.Write("Informe o nome do produto: ");
+                                    string nome = Console.ReadLine() ?? string.Empty;
+                                    Console.Write("Informe a descrição do produto: ");
+                                    string? descricao = Console.ReadLine();
+                                    Console.Write("Informe o preço do produto: ");
+                                    decimal preco = Convert.ToDecimal(Console.ReadLine());
+                                    Console.Write("Informe a quantidade em estoque: ");
+                                    int quantidadeEstoque = Convert.ToInt32(Console.ReadLine());
+                                    using (var cmd = new NpgsqlCommand("INSERT INTO produtos (nome, descricao, preco, quantidade_estoque) VALUES (@nome, @descricao, @preco, @quantidadeEstoque)", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("nome", nome);
+                                        cmd.Parameters.AddWithValue("descricao", descricao);
+                                        cmd.Parameters.AddWithValue("preco", preco);
+                                        cmd.Parameters.AddWithValue("quantidadeEstoque", quantidadeEstoque);
+                                        if(string.IsNullOrEmpty(nome) || preco <= 0 || quantidadeEstoque < 0)
+                                        {
+                                            Console.WriteLine("Dados inválidos. Por favor, tente novamente.\n");
+                                            return;
+                                        }
+                                        await cmd.ExecuteNonQueryAsync();
+                                        if (cmd.ExecuteNonQueryAsync().IsCompletedSuccessfully)
+                                        {
+                                            Console.WriteLine("Produto cadastrado com sucesso!\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Erro ao cadastrar o produto. Tente novamente.\n");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.");
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para cadastrar um produto
                                 break;
                             case 2:
                                 Console.WriteLine("Listar Produtos selecionado.\n");
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    using (var cmd = new NpgsqlCommand("SELECT * FROM produtos", connection))
+                                    {
+                                        await using var reader = await cmd.ExecuteReaderAsync();
+                                        if (reader.HasRows)
+                                        {
+                                            Console.WriteLine("Lista de Produtos:");
+                                            while (await reader.ReadAsync())
+                                            {
+                                                Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
+                                            }
+                                            Console.WriteLine("\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Nenhum produto encontrado.\n");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para listar produtos
                                 break;
                             case 3:
                                 Console.WriteLine("Obter Produto por ID selecionado.\n");
+                                Console.Write("Informe o ID do produto: ");
+                                int idProduto = Convert.ToInt32(Console.ReadLine());
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    using (var cmd = new NpgsqlCommand("SELECT * FROM produtos WHERE id = @id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idProduto);
+                                        await using var reader = await cmd.ExecuteReaderAsync();
+                                        if (await reader.ReadAsync())
+                                        {
+                                            Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Produto não encontrado.\n");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    return;
+                                }
                                 break;
                             // Aqui você pode adicionar a lógica para obter um produto por ID
                             case 4:
                                 Console.WriteLine("Atualizar Produto selecionado.\n");
+                                Console.Write("Informe o ID do produto a ser atualizado: ");
+                                int idAtualizar = Convert.ToInt32(Console.ReadLine());
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    using (var cmd = new NpgsqlCommand("SELECT * FROM produtos WHERE id = @id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idAtualizar);
+                                        await using var reader = await cmd.ExecuteReaderAsync();
+                                        if (await reader.ReadAsync())
+                                        {
+                                            Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}");
+                                            reader.Close(); // Fecha o leitor antes de atualizar
+                                            
+                                            Console.Write("Informe o novo nome do produto: ");
+                                            string novoNome = Console.ReadLine() ?? string.Empty;
+                                            Console.Write("Informe a nova descrição do produto: ");
+                                            string? novaDescricao = Console.ReadLine();
+                                            Console.Write("Informe o novo preço do produto: ");
+                                            decimal novoPreco = Convert.ToDecimal(Console.ReadLine());
+                                            Console.Write("Informe a nova quantidade em estoque: ");
+                                            int novaQuantidadeEstoque = Convert.ToInt32(Console.ReadLine());
+
+                                            using (var updateCmd = new NpgsqlCommand("UPDATE produtos SET nome = @nome, descricao = @descricao, preco = @preco, quantidade_estoque = @quantidadeEstoque WHERE id = @id", connection))
+                                            {
+                                                updateCmd.Parameters.AddWithValue("nome", novoNome);
+                                                updateCmd.Parameters.AddWithValue("descricao", novaDescricao);
+                                                updateCmd.Parameters.AddWithValue("preco", novoPreco);
+                                                updateCmd.Parameters.AddWithValue("quantidadeEstoque", novaQuantidadeEstoque);
+                                                updateCmd.Parameters.AddWithValue("id", idAtualizar);
+                                                await updateCmd.ExecuteNonQueryAsync();
+                                                Console.WriteLine("Produto atualizado com sucesso!\n");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Produto não encontrado.\n");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para atualizar um produto
                                 break;
                             case 5:
                                 Console.WriteLine("Excluir Produto selecionado.\n");
+                                Console.Write("Informe o ID do produto a ser excluído: ");
+                                int idExcluir = Convert.ToInt32(Console.ReadLine());
+                                await connection.OpenAsync();
+                                if (connection.State == System.Data.ConnectionState.Open)
+                                {
+                                    using (var cmd = new NpgsqlCommand("DELETE FROM produtos WHERE id = @id", connection))
+                                    {
+                                        cmd.Parameters.AddWithValue("id", idExcluir);
+                                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                                        if (rowsAffected > 0)
+                                        {
+                                            Console.WriteLine("Produto excluído com sucesso!\n");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Produto não encontrado ou já excluído.\n");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                    return;
+                                }
                                 // Aqui você pode adicionar a lógica para excluir um produto
                                 break;
                             case 6:
