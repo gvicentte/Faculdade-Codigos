@@ -354,44 +354,40 @@ class Program
                                     }
                                     else
                                     {
-                                        bool cabecalhoMostrado = false;
+                                        Pedido pedido = null;
                                         while (await reader.ReadAsync())
                                         {
-                                            if (!cabecalhoMostrado)
+                                            if (pedido == null)
                                             {
-                                                var testePedido = new Pedido
+                                                pedido = new Pedido
                                                 {
                                                     Id = reader.GetInt32(0),
                                                     Cliente = reader.GetString(1),
                                                     DataPedido = reader.GetDateTime(2),
-                                                    ValorTotalPedido = reader.GetDecimal(3)
+                                                    ValorTotalPedido = reader.GetDecimal(3),
+                                                    Itens = new List<ItemPedido>()
                                                 };
-                                                string json = JsonSerializer.Serialize(testePedido, new JsonSerializerOptions { WriteIndented = true });
-                                                Console.WriteLine(json);
-                                                //Console.WriteLine($"\nPedido ID: {reader.GetInt32(0)}");
-                                                //Console.WriteLine($"Cliente: {reader.GetString(1)}");
-                                                //Console.WriteLine($"Data: {reader.GetDateTime(2):dd/MM/yyyy}");
-                                                //Console.WriteLine($"Valor Total: R$ {reader.GetDecimal(3):N2}");
-                                                //Console.WriteLine("\nItens do Pedido:");
-                                                cabecalhoMostrado = true;
                                             }
-                                            var teste = new ItemPedido
+
+                                            pedido.Itens.Add(new ItemPedido
                                             {
                                                 ProdutoId = reader.GetInt32(0),
                                                 NomeProduto = reader.GetString(4),
                                                 Quantidade = reader.GetInt32(5),
                                                 PrecoUnitario = reader.GetDecimal(6),
                                                 ValorTotalItem = reader.GetDecimal(7)
-                                            };
-                                            string jsonItem = JsonSerializer.Serialize(teste, new JsonSerializerOptions { WriteIndented = true });
-                                            Console.WriteLine(jsonItem);
-                                            //string nomeProduto = reader.GetString(4);
-                                            //int quantidade = reader.GetInt32(5);
-                                            //decimal precoUnitario = reader.GetDecimal(6);
-                                            //decimal valorItem = reader.GetDecimal(7);
-                                            //Console.WriteLine($"- {nomeProduto} | Qtd: {quantidade} | Preço: R${precoUnitario:N2} | Total: R${valorItem:N2}");
+                                            });
                                         }
-                                        Console.WriteLine();
+
+                                        if (pedido != null)
+                                        {
+                                            string jsonCompleto = JsonSerializer.Serialize(pedido, new JsonSerializerOptions { WriteIndented = true });
+                                            Console.WriteLine(jsonCompleto);
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Pedido não encontrado.\n");
+                                        }
                                     }
                                     connection.Close();
                                 }
