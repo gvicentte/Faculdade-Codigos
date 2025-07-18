@@ -275,12 +275,10 @@ class Program
                                         // Buscar produto no banco
                                         await using var cmdProduto = new NpgsqlCommand("SELECT nome, preco FROM produtos WHERE id = @id", connection);
                                         cmdProduto.Parameters.AddWithValue("id", produtoId);
-                                        await connection.OpenAsync();
                                         await using var reader = await cmdProduto.ExecuteReaderAsync();
                                         if (!await reader.ReadAsync())
                                         {
                                             Console.WriteLine("Produto não encontrado!");
-                                            await connection.CloseAsync();
                                             continue;
                                         }
                                         string nomeProduto = reader.GetString(0);
@@ -296,12 +294,13 @@ class Program
                                             Quantidade = quantidade,
                                             ValorTotalItem = valorTotalItem
                                         });
+                                        await connection.OpenAsync();
                                     }
                                     // Inserir pedido
                                     await using var cmdPedido = new NpgsqlCommand("INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
                                     cmdPedido.Parameters.AddWithValue("cliente", cliente);
                                     cmdPedido.Parameters.AddWithValue("total", valorTotalPedido);
-                                    //await connection.OpenAsync();
+                                    await connection.OpenAsync();
                                     int pedidoId = (int)await cmdPedido.ExecuteScalarAsync();
                                     await connection.CloseAsync();
                                     // Inserir itens
@@ -322,7 +321,12 @@ class Program
                                         await cmdItem.ExecuteNonQueryAsync();
                                         await connection.CloseAsync();
                                     }
-                                    Console.WriteLine($"\n✅ Pedido {pedidoId} cadastrado com sucesso! Valor total: R${valorTotalPedido:N2}");
+                                    Console.WriteLine("Itens do Pedido:");
+                                    foreach (var item in itens)
+                                    {
+                                        Console.WriteLine($"Produto: {item.NomeProduto} | Quantidade: {item.Quantidade} | Preço: R${item.PrecoUnitario} | Total: R${item.ValorTotalItem}");
+                                    }
+                                    Console.WriteLine();
                                     connection.Close();
                                 }
                                 else
