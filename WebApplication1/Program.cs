@@ -1,8 +1,8 @@
 using System;
-using System.Data.Common;
-using System.IO.Compression;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Data.Common; // For database operations
+using System.IO.Compression; // For compression operations
+using System.Runtime.InteropServices; // For database operations
+using System.Threading.Tasks; // For asynchronous programming
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Npgsql; // Npgsql is the .NET data provider for PostgreSQL
