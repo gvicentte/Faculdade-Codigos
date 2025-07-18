@@ -146,4 +146,30 @@ class Program
             }
         }*/
     }
+    public class Produto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public string? Descricao { get; set; }
+        public decimal Preco { get; set; }
+        public int QuantidadeEstoque { get; set; }
+    }
+
+    public class Pedido
+    {
+        public int Id { get; set; }
+        public string Cliente { get; set; }
+        public List<ItemPedido> Itens { get; set; } = new List<ItemPedido>();
+        public decimal ValorTotalPedido { get; set; }
+        public DateTime DataPedido { get; set; }
+    }
+
+    public class ItemPedido
+    {
+        public int ProdutoId { get; set; }
+        public string NomeProduto { get; set; }
+        public int Quantidade { get; set; }
+        public decimal PrecoUnitario { get; set; }
+        public decimal ValorTotalItem { get; set; }
+    }
 }
