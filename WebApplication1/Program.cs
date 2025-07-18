@@ -46,7 +46,6 @@ class Program
                                 await connection.OpenAsync();
                                 if (connection.State == System.Data.ConnectionState.Open)
                                 {
-                                    //Console.WriteLine("Conectado ao banco de dados com sucesso!");
                                     Console.Write("Informe o nome do produto: ");
                                     string nome = Console.ReadLine() ?? string.Empty;
                                     Console.Write("Informe a descrição do produto: ");
@@ -436,32 +435,6 @@ class Program
                     break;
             }
         }
-        /*string nome;
-        Console.Write("Ola Informe seu nome: ");
-        nome = Console.ReadLine() ?? string.Empty;
-        Console.WriteLine("Ola seu nome e {0}", nome);
-        using (var connection = new NpgsqlConnection(connectionString))
-        {
-            connection.Open();
-            Console.WriteLine("Conectado ao banco de dados com sucesso!");
-        }
-        await using (var connection2 = new NpgsqlConnection(connectionString))
-        {
-            await connection2.OpenAsync();
-            Console.WriteLine("Conectado ao banco de dados com sucesso!");
-            await using var cmd = connection2.CreateCommand();
-            cmd.CommandText = "INSERT INTO tab_unidades_atendimentos (nome, endereco, telefone) VALUES (@nome, @endereco, @telefone);";
-            cmd.Parameters.AddWithValue("nome", nome);
-            cmd.Parameters.AddWithValue("endereco", "Rua Tend Tudo, 123");
-            cmd.Parameters.AddWithValue("telefone", "123456789");
-            await cmd.ExecuteNonQueryAsync();
-            cmd.CommandText = "SELECT * FROM tab_unidades_atendimentos;";
-            await using var version = await cmd.ExecuteReaderAsync();
-            while (await version.ReadAsync())
-            {
-                Console.WriteLine($"{version.GetValue(0)}, {version.GetValue(1)}, {version.GetValue(2)}, {version.GetValue(3)}");
-            }
-        }*/
     }
     public class Produto
     {
