@@ -256,46 +256,75 @@ class Program
                                 await connection.OpenAsync();
                                 if (connection.State == System.Data.ConnectionState.Open)
                                 {
-                                    Console.Write("Informe o nome do cliente: ");
-                                    string cliente = Console.ReadLine() ?? string.Empty;
-                                    Console.Write("Informe a data do pedido (dd/MM/yyyy): ");
-                                    DateTime dataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
-                                    Pedido pedido = new Pedido
+                                    Console.Write("Nome do cliente: ");
+                                    string cliente = Console.ReadLine();
+
+                                    Console.Write("Quantos itens o pedido terá? ");
+                                    int totalItens = int.Parse(Console.ReadLine());
+
+                                    List<ItemPedido> itens = new();
+                                    decimal valorTotalPedido = 0;
+
+                                    for (int i = 0; i < totalItens; i++)
                                     {
-                                        Cliente = cliente,
-                                        DataPedido = dataPedido
-                                    };
-
-                                    Console.Write("Quantos itens deseja adicionar ao pedido? ");
-                                    int numeroItens = Convert.ToInt32(Console.ReadLine());
-
-                                    for (int i = 0; i < numeroItens; i++)
-                                    {
-                                        Console.Write($"Informe o ID do produto {i + 1}: ");
-                                        int produtoId = Convert.ToInt32(Console.ReadLine());
-                                        Console.Write($"Informe a quantidade do produto {i + 1}: ");
-                                        int quantidade = Convert.ToInt32(Console.ReadLine());
-
-                                        // Aqui você pode buscar o produto pelo ID e obter o nome e preço
-                                        // Simulando com dados fictícios
-                                        string nomeProduto = "Produto Exemplo"; // Substitua pela lógica de busca real
-                                        decimal precoUnitario = 10.00m; // Substitua pela lógica de busca real
-
-                                        ItemPedido itemPedido = new ItemPedido
+                                        Console.WriteLine($"\nItem {i + 1}:");
+                                        Console.Write("ID do Produto: ");
+                                        int produtoId = int.Parse(Console.ReadLine());
+                                        Console.Write("Quantidade: ");
+                                        int quantidade = int.Parse(Console.ReadLine());
+                                        // Buscar produto no banco
+                                        await using var cmdProduto = new NpgsqlCommand("SELECT nome, preco FROM produtos WHERE id = @id", connection);
+                                        cmdProduto.Parameters.AddWithValue("id", produtoId);
+                                        await connection.OpenAsync();
+                                        await using var reader = await cmdProduto.ExecuteReaderAsync();
+                                        if (!await reader.ReadAsync())
+                                        {
+                                            Console.WriteLine("Produto não encontrado!");
+                                            await connection.CloseAsync();
+                                            continue;
+                                        }
+                                        string nomeProduto = reader.GetString(0);
+                                        decimal precoUnitario = reader.GetDecimal(1);
+                                        await connection.CloseAsync();
+                                        decimal valorTotalItem = precoUnitario * quantidade;
+                                        valorTotalPedido += valorTotalItem;
+                                        itens.Add(new ItemPedido
                                         {
                                             ProdutoId = produtoId,
                                             NomeProduto = nomeProduto,
-                                            Quantidade = quantidade,
                                             PrecoUnitario = precoUnitario,
-                                            ValorTotalItem = precoUnitario * quantidade
-                                        };
+                                            Quantidade = quantidade,
+                                            ValorTotalItem = valorTotalItem
+                                        });
+                                    }
+                                    // Inserir pedido
+                                    await using var cmdPedido = new NpgsqlCommand(
+                                        "INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
+                                    cmdPedido.Parameters.AddWithValue("cliente", cliente);
+                                    cmdPedido.Parameters.AddWithValue("total", valorTotalPedido);
+                                    await connection.OpenAsync();
+                                    int pedidoId = (int)await cmdPedido.ExecuteScalarAsync();
+                                    await connection.CloseAsync();
+                                    // Inserir itens
+                                    foreach (var item in itens)
+                                    {
+                                        await using var cmdItem = new NpgsqlCommand(
+                                            "INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) " +
+                                            "VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection);
 
-                                        pedido.Itens.Add(itemPedido);
-                                        pedido.ValorTotalPedido += itemPedido.ValorTotalItem;
+                                        cmdItem.Parameters.AddWithValue("pedidoId", pedidoId);
+                                        cmdItem.Parameters.AddWithValue("produtoId", item.ProdutoId);
+                                        cmdItem.Parameters.AddWithValue("nome", item.NomeProduto);
+                                        cmdItem.Parameters.AddWithValue("preco", item.PrecoUnitario);
+                                        cmdItem.Parameters.AddWithValue("quantidade", item.Quantidade);
+                                        cmdItem.Parameters.AddWithValue("valorTotal", item.ValorTotalItem);
+
+                                        await connection.OpenAsync();
+                                        await cmdItem.ExecuteNonQueryAsync();
+                                        await connection.CloseAsync();
                                     }
 
-                                    // Aqui você pode salvar o pedido no banco de dados
-                                    Console.WriteLine($"Pedido cadastrado com sucesso! Valor Total: {pedido.ValorTotalPedido:C}\n");
+                                    Console.WriteLine($"\n✅ Pedido {pedidoId} cadastrado com sucesso! Valor total: R${valorTotalPedido:N2}");
                                     connection.Close();
                                 }
                                 else
