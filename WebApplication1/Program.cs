@@ -154,7 +154,18 @@ class Program
                                         await using var reader = await cmd.ExecuteReaderAsync();
                                         if (await reader.ReadAsync())
                                         {
-                                            Console.WriteLine($"ID: {reader.GetInt32(0)}, Nome: {reader.GetString(1)}, Descrição: {reader.GetString(2)}, Preço: {reader.GetDecimal(3)}, Quantidade em Estoque: {reader.GetInt32(4)}\n");
+                                            var produto = new Produto
+                                            {
+                                                Id = reader.GetInt32(0),
+                                                Nome = reader.GetString(1),
+                                                Descricao = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                                Preco = reader.GetDecimal(3),
+                                                QuantidadeEstoque = reader.GetInt32(4)
+                                            };
+                                            string json = JsonSerializer.Serialize(produto, new JsonSerializerOptions { WriteIndented = true });
+                                            Console.WriteLine("Produto encontrado:");
+                                            Console.WriteLine(json);
+                                            Console.WriteLine(); // Adiciona uma linha em branco para melhor legibilidade
                                         }
                                         else
                                         {
