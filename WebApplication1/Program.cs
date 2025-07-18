@@ -298,11 +298,10 @@ class Program
                                         });
                                     }
                                     // Inserir pedido
-                                    await using var cmdPedido = new NpgsqlCommand(
-                                        "INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
+                                    await using var cmdPedido = new NpgsqlCommand("INSERT INTO pedidos (cliente, data_pedido, valor_total) VALUES (@cliente, NOW(), @total) RETURNING id", connection);
                                     cmdPedido.Parameters.AddWithValue("cliente", cliente);
                                     cmdPedido.Parameters.AddWithValue("total", valorTotalPedido);
-                                    await connection.OpenAsync();
+                                    //await connection.OpenAsync();
                                     int pedidoId = (int)await cmdPedido.ExecuteScalarAsync();
                                     await connection.CloseAsync();
                                     // Inserir itens
@@ -319,11 +318,10 @@ class Program
                                         cmdItem.Parameters.AddWithValue("quantidade", item.Quantidade);
                                         cmdItem.Parameters.AddWithValue("valorTotal", item.ValorTotalItem);
 
-                                        await connection.OpenAsync();
+                                        //await connection.OpenAsync();
                                         await cmdItem.ExecuteNonQueryAsync();
                                         await connection.CloseAsync();
                                     }
-
                                     Console.WriteLine($"\n✅ Pedido {pedidoId} cadastrado com sucesso! Valor total: R${valorTotalPedido:N2}");
                                     connection.Close();
                                 }
