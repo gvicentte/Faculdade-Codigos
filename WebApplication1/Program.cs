@@ -5,7 +5,8 @@ using System.Runtime.InteropServices; // For database operations
 using System.Threading.Tasks; // For asynchronous programming
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Npgsql; // Npgsql is the .NET data provider for PostgreSQL
+using Npgsql;
+using System.Data; // Npgsql is the .NET data provider for PostgreSQL
 
 //Complexidade de tempo e espaço para as operações principais:
 //Considerando que N é o número de produtos e M o número de itens do pedido:
@@ -416,45 +417,212 @@ class Program
                                 }
                                 break;
                             case 3:
-                                Console.WriteLine("Atualizar Pedido selecionado.\n");
-                                await connection.OpenAsync();
-                                if (connection.State == System.Data.ConnectionState.Open)
+                                int opcaoAtualizarPedido = 0;
+                                Console.WriteLine("O que Deseja Fazer.\n");
+                                while (opcaoAtualizarPedido != 5)
                                 {
-                                    Console.Write("Informe o ID do pedido a ser atualizado: ");
-                                    int idAtualizarPedido = Convert.ToInt32(Console.ReadLine());
-                                    using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                    Console.WriteLine("1 - Atualizar Pedido");
+                                    Console.WriteLine("2 - Excluir Item do Pedido");
+                                    Console.WriteLine("3 - Adicionar Item ao Pedido");
+                                    Console.WriteLine("4 - Editar Item do Pedido");
+                                    Console.WriteLine("5 - Voltar ao Menu de Pedidos");
+                                    opcaoAtualizarPedido = Convert.ToInt32(Console.ReadLine());
+
+                                    switch (opcaoAtualizarPedido)
                                     {
-                                        cmd.Parameters.AddWithValue("id", idAtualizarPedido);
-                                        await using var reader = await cmd.ExecuteReaderAsync();
-                                        if (await reader.ReadAsync())
-                                        {
-                                            Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
-                                            reader.Close(); // Fecha o leitor antes de atualizar
-                                            Console.Write("Informe o novo nome do cliente: ");
-                                            string novoCliente = Console.ReadLine() ?? string.Empty;
-                                            Console.Write("Informe a nova data do pedido (dd/MM/yyyy): ");
-                                            DateTime novaDataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
-                                            using (var updateCmd = new NpgsqlCommand("UPDATE pedidos SET cliente = @cliente, data_pedido = @dataPedido WHERE id = @id", connection))
+                                        case 1:
+                                            Console.WriteLine("Atualizar Pedido selecionado.\n");
+                                            await connection.OpenAsync();
+                                            if (connection.State == System.Data.ConnectionState.Open)
                                             {
-                                                updateCmd.Parameters.AddWithValue("cliente", novoCliente);
-                                                updateCmd.Parameters.AddWithValue("dataPedido", novaDataPedido);
-                                                updateCmd.Parameters.AddWithValue("id", idAtualizarPedido);
-                                                await updateCmd.ExecuteNonQueryAsync();
-                                                Console.WriteLine("Pedido atualizado com sucesso!\n");
+                                                Console.Write("Informe o ID do pedido a ser atualizado: ");
+                                                int idAtualizarPedido = Convert.ToInt32(Console.ReadLine());
+                                                using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                                {
+                                                    cmd.Parameters.AddWithValue("id", idAtualizarPedido);
+                                                    await using var reader = await cmd.ExecuteReaderAsync();
+                                                    if (await reader.ReadAsync())
+                                                    {
+                                                        Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
+                                                        reader.Close(); // Fecha o leitor antes de atualizar
+                                                        Console.Write("Informe o novo nome do cliente: ");
+                                                        string novoCliente = Console.ReadLine() ?? string.Empty;
+                                                        Console.Write("Informe a nova data do pedido (dd/MM/yyyy): ");
+                                                        DateTime novaDataPedido = DateTime.Parse(Console.ReadLine() ?? string.Empty);
+                                                        using (var updateCmd = new NpgsqlCommand("UPDATE pedidos SET cliente = @cliente, data_pedido = @dataPedido WHERE id = @id", connection))
+                                                        {
+                                                            updateCmd.Parameters.AddWithValue("cliente", novoCliente);
+                                                            updateCmd.Parameters.AddWithValue("dataPedido", novaDataPedido);
+                                                            updateCmd.Parameters.AddWithValue("id", idAtualizarPedido);
+                                                            await updateCmd.ExecuteNonQueryAsync();
+                                                            Console.WriteLine("Pedido atualizado com sucesso!\n");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.WriteLine("Pedido não encontrado.\n");
+                                                    }
+                                                }
+                                                connection.Close();
                                             }
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Pedido não encontrado.\n");
-                                        }
+                                            else
+                                            {
+                                                Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
+                                                connection.Close();
+                                                return;
+                                            }
+                                            break;
+                                        case 2:
+                                            Console.WriteLine("Excluir Item do Pedido selecionado.\n");
+                                            Console.Write("Informe o ID do pedido: ");
+                                            int idPedidoExcluirItem = Convert.ToInt32(Console.ReadLine());
+                                            await connection.OpenAsync();
+                                            using (var cmd = new NpgsqlCommand(@"SELECT * FROM itens_pedido ip JOIN pedidos p ON ip.pedido_id = p.id WHERE p.id = @pedido_id", connection))
+                                            {
+                                                cmd.Parameters.AddWithValue("pedido_id", idPedidoExcluirItem);
+                                                await using var reader = await cmd.ExecuteReaderAsync();
+                                                while (await reader.ReadAsync())
+                                                {
+                                                    //int teste = Convert.ToInt32(reader.GetValue(0));
+                                                    Console.WriteLine($"ID: {reader.GetInt32(0)} , ID do Item: {reader.GetInt32(1)}, Produto: {reader.GetString(2)}, Quantidade: {reader.GetInt32(3)}, Preço Unitário: {reader.GetDecimal(4)}, Valor Total: {reader.GetDecimal(5)} \n");
+                                                }
+                                                //for (int i = 0; i < reader.FieldCount; i++)
+                                                //{
+                                                //    Console.WriteLine($"Coluna {i}: {reader.GetName(i)} | Tipo .NET: {reader.GetFieldType(i)} | Tipo SQL: {reader.GetDataTypeName(i)}");
+                                                //}
+                                                if (await reader.ReadAsync())
+                                                {
+                                                    reader.Close(); // Fecha o leitor antes de excluir
+                                                    Console.Write("Informe o ID do item a ser excluído: ");
+                                                    int idItemExcluir = Convert.ToInt32(Console.ReadLine());
+                                                    using (var deleteCmd = new NpgsqlCommand("DELETE FROM itens_pedido WHERE id = @id", connection))
+                                                    {
+                                                        deleteCmd.Parameters.AddWithValue("id", idPedidoExcluirItem);
+                                                        int rowsAffected = await deleteCmd.ExecuteNonQueryAsync();
+                                                        if (rowsAffected > 0)
+                                                        {
+                                                            Console.WriteLine("Item excluído com sucesso!\n");
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine("Item não encontrado ou já excluído.\n");
+                                                            await connection.CloseAsync();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Pedido não encontrado.\n");
+                                                    await connection.CloseAsync();
+                                                }
+                                            }
+                                            // Excluir Item do Pedido
+                                            break;
+                                        case 3:
+                                            Console.WriteLine("Adicionar Item ao Pedido selecionado.\n");
+                                            Console.Write("Informe o ID do pedido: ");
+                                            int idPedidoAdicionarItem = Convert.ToInt32(Console.ReadLine());
+                                            await connection.OpenAsync();
+                                            using (var cmd = new NpgsqlCommand("SELECT * FROM pedidos WHERE id=@id", connection))
+                                            {
+                                                cmd.Parameters.AddWithValue("id", idPedidoAdicionarItem);
+                                                await using var reader = await cmd.ExecuteReaderAsync();
+                                                if (await reader.ReadAsync())
+                                                {
+                                                    Console.WriteLine($"ID: {reader.GetInt32(0)}, Cliente: {reader.GetString(1)}, Data: {reader.GetDateTime(2)}, Valor Total: {reader.GetDecimal(3)}");
+                                                    reader.Close(); // Fecha o leitor antes de adicionar
+                                                    Console.Write("Informe o ID do produto a ser adicionado: ");
+                                                    int produtoId = Convert.ToInt32(Console.ReadLine());
+                                                    Console.Write("Informe a quantidade do produto: ");
+                                                    int quantidade = Convert.ToInt32(Console.ReadLine());
+                                                    // Buscar produto no banco
+                                                    using (var cmdProduto = new NpgsqlCommand("SELECT nome, preco FROM produtos WHERE id = @id", connection))
+                                                    {
+                                                        cmdProduto.Parameters.AddWithValue("id", produtoId);
+                                                        await using var readerProduto = await cmdProduto.ExecuteReaderAsync();
+                                                        if (!await readerProduto.ReadAsync())
+                                                        {
+                                                            Console.WriteLine("Produto não encontrado!");
+                                                            continue;
+                                                        }
+                                                        string nomeProduto = readerProduto.GetString(0);
+                                                        decimal precoUnitario = readerProduto.GetDecimal(1);
+                                                        decimal valorTotalItem = precoUnitario * quantidade;
+                                                        // Inserir item no pedido
+                                                        using (var insertCmd = new NpgsqlCommand("INSERT INTO itens_pedido (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, valor_total_item) VALUES (@pedidoId, @produtoId, @nome, @preco, @quantidade, @valorTotal)", connection))
+                                                        {
+                                                            insertCmd.Parameters.AddWithValue("pedidoId", idPedidoAdicionarItem);
+                                                            insertCmd.Parameters.AddWithValue("produtoId", produtoId);
+                                                            insertCmd.Parameters.AddWithValue("nome", nomeProduto);
+                                                            insertCmd.Parameters.AddWithValue("preco", precoUnitario);
+                                                            insertCmd.Parameters.AddWithValue("quantidade", quantidade);
+                                                            insertCmd.Parameters.AddWithValue("valorTotal", valorTotalItem);
+                                                            await insertCmd.ExecuteNonQueryAsync();
+                                                            Console.WriteLine("Item adicionado ao pedido com sucesso!\n");
+                                                        }
+                                                    }
+                                                    await connection.CloseAsync();
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Pedido não encontrado.\n");
+                                                    await connection.CloseAsync();
+                                                }
+                                            }
+                                            // Adicionar Item ao Pedido
+                                            break;
+                                        case 4:
+                                            Console.WriteLine("Editar Item do Pedido selecionado.\n");
+                                            Console.Write("Informe o ID do pedido: ");
+                                            int idPedidoEditarItem = Convert.ToInt32(Console.ReadLine());
+                                            await connection.OpenAsync();
+                                            using (var cmd = new NpgsqlCommand("SELECT * FROM itens_pedido JOIN pedidos ON pedido_id=@id", connection))
+                                            {
+                                                cmd.Parameters.AddWithValue("id", idPedidoEditarItem);
+                                                await using var reader = await cmd.ExecuteReaderAsync();
+                                                if (await reader.ReadAsync())
+                                                {
+                                                    while (await reader.ReadAsync())
+                                                    {
+                                                        Console.WriteLine($"ID: {reader.GetInt32(0)} , ID do Item: {reader.GetInt32(1)}, Produto: {reader.GetString(2)}, Quantidade: {reader.GetInt32(3)}, Preço Unitário: {reader.GetDecimal(4)}, Valor Total: {reader.GetDecimal(5)} \n");
+                                                    }
+                                                    reader.Close(); // Fecha o leitor antes de editar
+                                                    Console.Write("Informe o ID do item a ser editado: ");
+                                                    int idItemEditar = Convert.ToInt32(Console.ReadLine());
+                                                    Console.Write("Informe a nova quantidade do produto: ");
+                                                    int novaQuantidade = Convert.ToInt32(Console.ReadLine());
+                                                    using (var updateCmd = new NpgsqlCommand("UPDATE itens_pedido SET quantidade = @quantidade WHERE pedido_id = @pedidoId AND produto_id = @produtoId", connection))
+                                                    {
+                                                        updateCmd.Parameters.AddWithValue("pedidoId", idPedidoEditarItem);
+                                                        updateCmd.Parameters.AddWithValue("produtoId", idItemEditar);
+                                                        updateCmd.Parameters.AddWithValue("quantidade", novaQuantidade);
+                                                        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+                                                        if (rowsAffected > 0)
+                                                        {
+                                                            Console.WriteLine("Item editado com sucesso!\n");
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine("Item não encontrado ou já editado.\n");
+                                                        }
+                                                    }
+                                                    await connection.CloseAsync();
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Pedido não encontrado.\n");
+                                                    await connection.CloseAsync();
+                                                }
+                                            }
+                                            // Editar Item do Pedido
+                                            break;
+                                        case 5:
+                                            Console.WriteLine("Voltando ao Menu de Pedidos...\n");
+                                            break;
+                                        default:
+                                            Console.WriteLine("Opcao invalida, tente novamente.\n");
+                                            break;
                                     }
-                                    connection.Close();
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Falha ao conectar ao banco de dados. Tente novamente.\n");
-                                    connection.Close();
-                                    return;
                                 }
                                 break;
                             case 4:

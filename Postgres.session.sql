@@ -16,7 +16,7 @@ CREATE TABLE pedidos (
 CREATE TABLE itens_pedido (
     id SERIAL PRIMARY KEY,
     pedido_id INT NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
-    produto_id INT NOT NULL REFERENCES produtos(id),
+    produto_id INT NOT NULL REFERENCES produtos(id) ON DELETE ,
     nome_produto TEXT NOT NULL,
     preco_unitario NUMERIC(10,2) NOT NULL,
     quantidade INT NOT NULL,
