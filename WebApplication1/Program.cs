@@ -477,14 +477,24 @@ class Program
                                             Console.Write("Informe o ID do pedido: ");
                                             int idPedidoExcluirItem = Convert.ToInt32(Console.ReadLine());
                                             await connection.OpenAsync();
-                                            using (var cmd = new NpgsqlCommand(@"SELECT * FROM itens_pedido ip JOIN pedidos p ON ip.pedido_id = p.id WHERE p.id = @pedido_id", connection))
+                                            using (var cmd = new NpgsqlCommand("SELECT * FROM itens_pedido ip JOIN pedidos p ON ip.pedido_id = p.id WHERE p.id = @pedido_id", connection))
                                             {
                                                 cmd.Parameters.AddWithValue("pedido_id", idPedidoExcluirItem);
                                                 await using var reader = await cmd.ExecuteReaderAsync();
                                                 while (await reader.ReadAsync())
                                                 {
+                                                    var teste = new ItemPedido
+                                                    {
+                                                        ProdutoId = reader.GetInt32(0),
+                                                        NomeProduto = reader.GetString(2),
+                                                        Quantidade = reader.GetInt32(3),
+                                                        PrecoUnitario = reader.GetDecimal(4),
+                                                        ValorTotalItem = reader.GetDecimal(5)
+                                                    };
+                                                    string json = JsonSerializer.Serialize(teste, new JsonSerializerOptions { WriteIndented = true });
+                                                    Console.WriteLine(json);
                                                     //int teste = Convert.ToInt32(reader.GetValue(0));
-                                                    Console.WriteLine($"ID: {reader.GetInt32(0)} , ID do Item: {reader.GetInt32(1)}, Produto: {reader.GetString(2)}, Quantidade: {reader.GetInt32(3)}, Preço Unitário: {reader.GetDecimal(4)}, Valor Total: {reader.GetDecimal(5)} \n");
+                                                    //Console.WriteLine($"ID: {reader.GetString(0)} , ID do Item: {reader.GetInt32(1)}, Produto: {reader.GetString(2)}, Quantidade: {reader.GetInt32(3)}, Preço Unitário: {reader.GetDecimal(4)}, Valor Total: {reader.GetDecimal(5)} \n");
                                                 }
                                                 //for (int i = 0; i < reader.FieldCount; i++)
                                                 //{
