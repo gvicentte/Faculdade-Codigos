@@ -477,7 +477,7 @@ class Program
                                             Console.Write("Informe o ID do pedido: ");
                                             int idPedidoExcluirItem = Convert.ToInt32(Console.ReadLine());
                                             await connection.OpenAsync();
-                                            using (var cmd = new NpgsqlCommand("SELECT * FROM itens_pedido ip JOIN pedidos p ON ip.pedido_id = p.id WHERE p.id = @pedido_id", connection))
+                                            using (var cmd = new NpgsqlCommand("SELECT * FROM itens_pedido AS ip JOIN pedidos AS p ON @pedido_id = p.id WHERE p.id = @pedido_id", connection))
                                             {
                                                 cmd.Parameters.AddWithValue("pedido_id", idPedidoExcluirItem);
                                                 await using var reader = await cmd.ExecuteReaderAsync();
@@ -485,7 +485,7 @@ class Program
                                                 {
                                                     var teste = new ItemPedido
                                                     {
-                                                        ProdutoId = reader.GetInt32(0),
+                                                        ProdutoId = (int) reader.GetInt32(0),
                                                         NomeProduto = reader.GetString(2),
                                                         Quantidade = reader.GetInt32(3),
                                                         PrecoUnitario = reader.GetDecimal(4),
