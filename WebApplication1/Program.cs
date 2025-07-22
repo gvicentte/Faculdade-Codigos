@@ -697,7 +697,6 @@ class Program
         public decimal Preco { get; set; }
         public int QuantidadeEstoque { get; set; }
     }
-
     public class Pedido
     {
         public int Id { get; set; }
@@ -706,7 +705,6 @@ class Program
         public decimal ValorTotalPedido { get; set; }
         public DateTime DataPedido { get; set; }
     }
-
     public class ItemPedido
     {
         public int ProdutoId { get; set; }
