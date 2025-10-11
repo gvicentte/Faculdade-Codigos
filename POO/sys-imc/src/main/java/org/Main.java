@@ -1,0 +1,25 @@
+package org;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import org.utils.PathFXML;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import static org.utils.PathFXML.pathFXML;
+
+public class Main extends Application {
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        Parent root = fxmlLoader.load(new FileInputStream(PathFXML.pathFXML() + "\\PessoaView.fxml"));
+        Scene scene = new Scene(root, 550, 400);
+        stage.setTitle("Calculadora IMC!");
+        stage.setScene(scene);
+        stage.show();
+    }
+}
