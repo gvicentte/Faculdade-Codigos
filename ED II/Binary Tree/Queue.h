@@ -59,4 +59,15 @@ struct Nodes* popHead(Queue *a){
     return value;
 }
 
+// Função para Deletar toda a Queue
+
+void deleteQueue(Queue *a){
+    while(a->head!=NULL){
+        Node *iterator = a->head;
+        a->head=a->head->next;
+        free(iterator);
+    }
+    free(a);
+}
+
 #endif // QUEUE_H
