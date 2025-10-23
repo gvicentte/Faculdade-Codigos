@@ -2,6 +2,7 @@
 #define STACK_H
 #include "Tree.h"
 
+// forward declaration (avisa ao compilador que existe struct Nodes)
 struct Nodes;
 
 typedef struct NodeStack
